@@ -1,0 +1,58 @@
+{
+  "info": {
+    "_postman_id": "5f1b7eab-8c0c-4a7a-8d3c-084fb80b1234",
+    "name": "Story2Audio API Tests",
+    "description": "Test collection for the Story2Audio service with gRPC",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Audio - Happy Story",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"story_text\": \"The little girl got a new puppy for her birthday. She was so excited that she jumped up and down with joy!\",\n    \"voice_type\": \"p225\"\n}"
+        },
+        "url": {
+          "raw": "localhost:50051/story_audio.StoryAudioService/GenerateAudio",
+          "host": ["localhost"],
+          "port": "50051",
+          "path": ["story_audio.StoryAudioService", "GenerateAudio"]
+        },
+        "description": "Generate audio for a happy story"
+      },
+      "response": []
+    },
+    {
+      "name": "Generate Audio - Sad Story",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"story_text\": \"The old man sat alone on the bench, looking at the photo of his wife. A tear rolled down his cheek as he remembered their fifty years together.\",\n    \"voice_type\": \"p225\"\n}"
+        },
+        "url": {
+          "raw": "localhost:50051/story_audio.StoryAudioService/GenerateAudio",
+          "host": ["localhost"],
+          "port": "50051",
+          "path": ["story_audio.StoryAudioService", "GenerateAudio"]
+        },
+        "description": "Generate audio for a sad story"
+      },
+      "response": []
+    }
+  ]
+}

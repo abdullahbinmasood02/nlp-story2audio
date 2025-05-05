@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package story_audio;
+
+// Service definition
+service StoryAudioService {
+  rpc GenerateAudio(StoryRequest) returns (AudioResponse) {}
+}
+
+// Request message with story text
+message StoryRequest {
+  string story_text = 1;
+  string voice_type = 2;
+}
+
+// Emotion analysis for a text segment
+message EmotionData {
+  string text = 1;
+  string emotion = 2;
+  float score = 3;
+}
+
+// Response message with audio data
+message AudioResponse {
+  string status = 1;
+  bytes audio_content = 2;
+  string format = 3;
+  int32 sample_rate = 4;
+  repeated EmotionData emotion_analysis = 5;
+}
