@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.env
+.venv/
+
+# Airflow specific files
+airflow/logs/
+airflow/*.pid
+airflow/*.db
+airflow/*.log
+airflow/webserver_config.py
+
+# MLflow files
+mlruns/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Mac OS
+.DS_Store
+
+# Docker
+.dockerignore

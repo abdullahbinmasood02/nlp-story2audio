@@ -1,0 +1,102 @@
+version: '3.8'  # This is technically obsolete but won't cause issues
+
+services:
+  # MLflow tracking server
+  mlflow:
+    image: python:3.9
+    container_name: mlflow_server
+    command: >
+      bash -c "pip install mlflow>=1.20.0 psycopg2-binary>=2.8.6 && 
+              mlflow server --host 0.0.0.0 --port 5001"
+    ports:
+      - "5001:5001"  # Changed from 5000 to 5001
+    volumes:
+      - ../mlruns:/mlruns
+    networks:
+      - nlp_network
+
+  # Airflow webserver with init command
+  airflow-webserver:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.airflow
+    container_name: airflow_webserver
+    entrypoint: >
+      /bin/bash -c "
+      airflow db init &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com &&
+      airflow webserver
+      "
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../airflow:/opt/airflow
+      - ../:/app
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__DAGS_FOLDER=/app/airflow/dags
+      - AIRFLOW__WEBSERVER__SECRET_KEY=openssl rand -hex 32
+    depends_on:
+      - postgres
+    networks:
+      - nlp_network
+
+  # Airflow scheduler
+  airflow-scheduler:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.airflow
+    container_name: airflow_scheduler
+    command: scheduler
+    volumes:
+      - ../airflow:/opt/airflow
+      - ../:/app
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__DAGS_FOLDER=/app/airflow/dags
+    depends_on:
+      - postgres
+      - airflow-webserver
+    networks:
+      - nlp_network
+
+  # PostgreSQL for Airflow metadata
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    networks:
+      - nlp_network
+
+  # API server
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: api_server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/app
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5001  # Update this to use port 5001
+    depends_on:
+      - mlflow
+    networks:
+      - nlp_network
+
+# Define the network that was referenced
+networks:
+  nlp_network:
+    driver: bridge

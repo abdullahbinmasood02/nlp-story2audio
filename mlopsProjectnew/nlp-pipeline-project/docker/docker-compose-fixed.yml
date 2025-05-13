@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # MLflow tracking server
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.4.0
+    container_name: mlflow_server
+    ports:
+      - "5001:5000"
+    command: mlflow server --host 0.0.0.0 --port 5000
+    volumes:
+      - ../mlruns:/mlruns
+    networks:
+      - nlp_network
+
+  # PostgreSQL for Airflow metadata
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    networks:
+      - nlp_network
+
+  # API server with fixes for missing dependencies and templates
+  api:
+    image: python:3.9-slim
+    container_name: api_server
+    working_dir: /app
+    volumes:
+      - ../:/app
+    command: >
+      bash -c "cd /app &&
+              pip install --upgrade pip &&
+              pip install -r requirements.txt &&
+              pip install langdetect langid pytest pytest-cov jinja2 &&
+              python -m spacy download en_core_web_sm &&
+              mkdir -p api/static &&
+              mkdir -p api/templates &&
+              echo '<html><head><title>Text Classification API</title></head><body><h1>Text Classification API</h1><p>Welcome to the NLP Text Classification API</p></body></html>' > api/templates/index.html &&
+              python -m uvicorn api.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      - mlflow
+    networks:
+      - nlp_network
+
+networks:
+  nlp_network:
+    driver: bridge

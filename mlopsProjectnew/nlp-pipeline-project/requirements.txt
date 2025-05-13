@@ -1,0 +1,30 @@
+# Core libraries with fixed versions
+numpy>=1.19.0  # Relaxed version constraint to allow compatible versions
+pandas==1.5.3
+scikit-learn==1.2.2
+nltk==3.8.1
+spacy==3.5.3
+textblob==0.17.1
+protobuf==4.25.3
+
+# MLflow for experiment tracking
+mlflow==2.4.0
+
+# API libraries
+fastapi==0.95.2
+uvicorn==0.22.0
+pydantic==1.10.8
+
+# Monitoring
+prometheus-client==0.16.0
+python-json-logger==2.0.7
+
+# Utilities
+python-dotenv==1.0.0
+
+# Testing
+pytest==7.3.1
+
+# Language detection
+langdetect>=1.0.9
+langid>=1.1.6
